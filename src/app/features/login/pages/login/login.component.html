@@ -39,13 +39,12 @@
       </form>
       <div class="demo-box">
         <strong>Explore the demo</strong>
-        <p>All accounts use <code>Demo@123</code></p>
+        <p>Use this password for all accounts: <code>Demo@123</code></p>
         @for (role of ['admin', 'manager', 'viewer']; track role) {
           <button class="demo-account" (click)="choose(role)">
             {{ role }}&#64;coredesk.demo <span>↗</span>
           </button>
         }
-        <small>Demo data only. Do not enter personal information.</small>
       </div>
     </div>
   </section>
