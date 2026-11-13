@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-bottom: 26px;
+}
+.role-card {
+  padding: 28px;
+}
+.role-card h2 {
+  font-size: 23px;
+}
+.role-symbol {
+  font-size: 30px;
+  color: var(--accent);
+}
+.permission {
+  color: var(--accent);
+  font-size: 17px;
+}
+@media (max-width: 950px) {
+  .role-grid {
+    gap: 12px;
+  }
+  .role-card {
+    padding: 18px;
+  }
+  .role-card p {
+    font-size: 11px;
+  }
+}
+@media (max-width: 680px) {
+  .role-grid {
+    grid-template-columns: 1fr;
+  }
+}

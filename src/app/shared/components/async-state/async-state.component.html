@@ -1,0 +1,14 @@
+<div
+  class="state-panel"
+  [class.state-error]="state() === 'error'"
+  [attr.role]="state() === 'error' ? 'alert' : 'status'"
+  [attr.aria-busy]="state() === 'loading'"
+>
+  @if (state() === 'loading') {
+    <span class="spinner" aria-hidden="true"></span>
+  }
+  <p>{{ message() }}</p>
+  @if (state() === 'error') {
+    <button type="button" class="secondary" (click)="retry.emit()">Try again</button>
+  }
+</div>

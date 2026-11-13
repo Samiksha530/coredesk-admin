@@ -1,0 +1,65 @@
+<div class="app-shell" [class.nav-open]="open()">
+  <aside class="sidebar" id="workspace-sidebar">
+    <a class="brand" routerLink="/dashboard"><span class="brand-icon">C</span>CoreDesk</a>
+    <div class="sidebar-scroll">
+      <div class="workspace">
+        <span class="workspace-icon">C</span>
+        <div>
+          <strong>CoreDesk workspace</strong
+          ><small>Pro plan <span class="tiny-badge">DEMO</span></small>
+        </div>
+        <span>⌄</span>
+      </div>
+      <p class="nav-label">WORKSPACE</p>
+      <nav aria-label="Workspace navigation">
+        @for (item of links; track item.path) {
+          @if (item.path !== 'roles' || auth.session()?.role === 'Admin') {
+            <a [routerLink]="'/' + item.path" routerLinkActive="selected" (click)="open.set(false)"
+              ><span class="nav-icon">{{ item.icon }}</span
+              >{{ item.label }}</a
+            >
+          }
+        }
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="upgrade">
+          <span>✧</span><strong>Built for what’s next.</strong>
+          <p>Manage teams, streamline operations, and track performance.</p>
+          <a routerLink="/settings">Workspace settings ↗</a>
+        </div>
+      </div>
+    </div>
+    <button class="profile" (click)="auth.logout()">
+      <span class="avatar">{{ auth.session()?.name?.slice(0, 1) }}</span><span
+        ><strong>{{ auth.session()?.name }}</strong
+        ><small>{{ auth.session()?.role }} · Sign out ↗</small></span
+      >
+    </button>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button
+        class="mobile-toggle icon-button"
+        (click)="open.set(!open())"
+        aria-label="Toggle navigation"
+        [attr.aria-expanded]="open()"
+        aria-controls="workspace-sidebar"
+      >
+        ☰</button
+      ><span class="breadcrumb"
+        >Workspace <span>/</span><strong>{{ currentPage() }}</strong></span
+      >
+      <div class="top-actions">
+        <span class="environment"><i></i> Local demo API</span
+        ><button class="icon-button" (click)="theme.toggle()" aria-label="Toggle dark mode">
+          ◐</button
+        ><a routerLink="/activity" class="icon-button" aria-label="Activity log">◷</a
+        ><span class="avatar small">{{ auth.session()?.name?.slice(0, 1) }}</span>
+      </div>
+    </header>
+    <main><router-outlet /></main>
+    <footer>
+      CoreDesk <span>Angular 22 · Portfolio demo</span><span>Crafted with intention.</span>
+    </footer>
+  </div>
+</div>

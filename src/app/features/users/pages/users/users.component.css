@@ -1,0 +1,149 @@
+:host {
+  display: block;
+}
+.mini-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.mini-kpis .card {
+  padding: 23px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mini-kpis strong {
+  font-size: 24px;
+}
+.filters {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.filters input,
+.filters select {
+  font-size: 11px;
+}
+.filters input {
+  width: 210px;
+}
+.count {
+  font-size: 10px;
+  background: var(--soft);
+  color: var(--accent);
+  padding: 4px 7px;
+  border-radius: 5px;
+  margin-left: 7px;
+}
+.sort {
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+}
+.role-chip {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 4px 7px;
+  font-size: 10px;
+}
+.pagination {
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--line);
+}
+.pagination > div {
+  display: flex;
+  gap: 8px;
+}
+.pagination button {
+  padding: 7px 10px;
+  font-size: 10px;
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #102c2470;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+.modal {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 28px;
+  width: 480px;
+  max-height: 95vh;
+  overflow: auto;
+  box-shadow: 0 30px 90px #0003;
+}
+.modal .card-heading {
+  padding: 0;
+}
+.modal h2 {
+  font-size: 22px;
+  margin: 0;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+}
+@media (max-width: 1200px) {
+  .filters {
+    justify-content: flex-end;
+  }
+}
+@media (max-width: 950px) {
+  .filters {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 680px) {
+  .mini-kpis {
+    gap: 8px;
+  }
+  .mini-kpis .card {
+    padding: 14px;
+    display: block;
+  }
+  .mini-kpis strong {
+    display: block;
+    font-size: 21px;
+    margin-top: 10px;
+  }
+  .mini-kpis .muted {
+    font-size: 9px;
+  }
+  .filters input,
+  .filters {
+    width: 100%;
+  }
+  .filters select {
+    flex: 1;
+  }
+  .pagination {
+    padding: 16px;
+    gap: 12px;
+  }
+  .pagination .muted {
+    font-size: 9px;
+  }
+  .modal {
+    padding: 22px;
+  }
+}

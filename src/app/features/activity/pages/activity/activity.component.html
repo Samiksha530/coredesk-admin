@@ -1,0 +1,32 @@
+<div class="page-heading">
+  <div>
+    <span class="eyebrow">WORKSPACE VISIBILITY</span>
+    <h1>Activity log<span class="accent">.</span></h1>
+    <p class="muted">A transparent record of the changes that matter.</p>
+  </div>
+  <button class="secondary" (click)="load()" [disabled]="loading()">↻ Refresh</button>
+</div>
+<section class="card">
+  <div class="card-heading">
+    <h3>Recent activity</h3>
+    <span class="pill">LATEST 100 EVENTS</span>
+  </div>
+  @if (error()) {
+    <app-async-state state="error" [message]="error()" (retry)="load()" />
+  }
+  @for (event of events(); track event.id) {
+    <div class="activity-row">
+      <span class="activity-icon">↗</span>
+      <div>
+        <strong>{{ event.action }}</strong>
+        <p class="muted">{{ event.actor }}</p>
+      </div>
+      <time class="muted">{{ event.date | date: 'MMM d, y, h:mm a' }}</time>
+    </div>
+  } @empty {
+    <app-async-state
+      [state]="loading() ? 'loading' : 'empty'"
+      [message]="loading() ? 'Loading activity…' : 'No activity to display.'"
+    />
+  }
+</section>

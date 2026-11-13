@@ -1,0 +1,23 @@
+<dialog
+  #dialog
+  class="confirmation"
+  aria-labelledby="confirmation-title"
+  aria-describedby="confirmation-message"
+  (cancel)="onCancel($event)"
+>
+  <h2 id="confirmation-title">{{ title() }}</h2>
+  <p id="confirmation-message" class="muted">{{ message() }}</p>
+  <div class="actions">
+    <button
+      type="button"
+      class="secondary"
+      autofocus
+      [disabled]="busy()"
+      (click)="cancelled.emit()"
+    >
+      Cancel</button
+    ><button type="button" class="danger" [disabled]="busy()" (click)="confirmed.emit()">
+      {{ busy() ? 'Removing…' : confirmLabel() }}
+    </button>
+  </div>
+</dialog>

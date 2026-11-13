@@ -1,0 +1,190 @@
+<div class="page-heading">
+  <div>
+    <span class="eyebrow">PEOPLE & ACCESS</span>
+    <h1>User management<span class="accent">.</span></h1>
+    <p class="muted">The right people. The right permissions. All in one place.</p>
+  </div>
+  @if (canEdit()) {
+    <button class="primary" (click)="openMemberForm()">＋ Add member</button>
+  }
+</div>
+<div class="mini-kpis">
+  <div class="card">
+    <span class="muted">Total members</span><strong>{{ users().length }}</strong>
+  </div>
+  <div class="card">
+    <span class="muted">Active members</span><strong>{{ active() }}</strong>
+  </div>
+  <div class="card">
+    <span class="muted">Access level</span><strong>{{ auth.session()?.role }}</strong>
+  </div>
+</div>
+@if (message()) {
+  <p class="notice" role="status">{{ message() }}</p>
+}
+@if (error()) {
+  <app-async-state state="error" [message]="error()" (retry)="load()" />
+}
+@if (loading() && users().length) {
+  <app-async-state state="loading" message="Updating members…" />
+}
+<section class="card" [attr.aria-busy]="loading()">
+  <div class="card-heading">
+    <h3>
+      All members <span class="count">{{ filtered().length }}</span>
+    </h3>
+    <div class="filters">
+      <input
+        #searchInput
+        aria-label="Search members"
+        placeholder="⌕ Search name or email…"
+        (input)="updateQuery(searchInput.value)"
+      /><select #roleFilter aria-label="Filter by role" (change)="updateRole(roleFilter.value)">
+        <option value="">All roles</option>
+        <option>Admin</option>
+        <option>Manager</option>
+        <option>Viewer</option></select
+      ><select
+        #statusFilter
+        aria-label="Filter by status"
+        (change)="updateStatus(statusFilter.value)"
+      >
+        <option value="">All statuses</option>
+        <option>Active</option>
+        <option>Invited</option>
+        <option>Suspended</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <button class="sort" (click)="asc.set(!asc())">MEMBER {{ asc() ? '↑' : '↓' }}</button>
+          </th>
+          <th>ROLE</th>
+          <th>STATUS</th>
+          <th>DEPARTMENT</th>
+          <th>JOINED</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of paged(); track u.id) {
+          <tr>
+            <td>
+              <div class="person">
+                <span class="avatar pastel">{{ u.name.slice(0, 1) }}</span>
+                <div>
+                  <strong>{{ u.name }}</strong><small>{{ u.email }}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="role-chip">{{ u.role }}</span>
+            </td>
+            <td>
+              <app-status-badge [status]="u.status" />
+            </td>
+            <td>{{ u.department }}</td>
+            <td>{{ u.joined }}</td>
+            <td>
+              @if (canEditMember(u)) {
+                <button class="text-link" (click)="openMemberForm(u)">Edit</button>
+              }
+              @if (canDeleteMember(u)) {
+                <button class="danger-link" (click)="deleting.set(u)">Delete</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="empty">
+              <app-async-state
+                [state]="loading() ? 'loading' : 'empty'"
+                [message]="loading() ? 'Loading members…' : 'No members match your filters.'"
+              />
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    <span class="muted">{{ filtered().length }} members · Page {{ page() }} of {{ pages() }}</span>
+    <div>
+      <button class="secondary" [disabled]="page() === 1" (click)="page.set(page() - 1)">
+        ← Previous</button
+      ><button class="secondary" [disabled]="page() >= pages()" (click)="page.set(page() + 1)">
+        Next →
+      </button>
+    </div>
+  </div>
+</section>
+@if (showForm()) {
+  <div class="modal-backdrop">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="member-title">
+      <div class="card-heading">
+        <h2 id="member-title">{{ editingId ? 'Edit member' : 'Add a new member' }}</h2>
+        <button class="icon-button" (click)="closeMemberForm()" aria-label="Close">×</button>
+      </div>
+      <p class="muted">Keep your team connected and access intentional.</p>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <label
+          >Full name<input formControlName="name" maxlength="80" autocomplete="name" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <small class="field-error">Enter a name with 1–80 characters.</small>
+          }</label
+        ><label
+          >Email address<input formControlName="email" type="email" autocomplete="email" />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <small class="field-error">Enter a valid email address.</small>
+          }
+        </label>
+        <div class="form-row">
+          <label
+            >Role<select formControlName="role">
+              <option>Viewer</option>
+              <option>Manager</option>
+              @if (auth.session()?.role === 'Admin') {
+                <option>Admin</option>
+              }
+            </select></label
+          ><label
+            >Status<select formControlName="status">
+              <option>Active</option>
+              <option>Invited</option>
+              <option>Suspended</option>
+            </select></label
+          >
+        </div>
+        <label
+          >Department<input formControlName="department" maxlength="60" />
+          @if (form.controls.department.touched && form.controls.department.invalid) {
+            <small class="field-error">Enter a department with 1–60 characters.</small>
+          }
+        </label>
+        @if (formError()) {
+          <p class="error" role="alert">{{ formError() }}</p>
+        }
+        <div class="modal-actions">
+          <button type="button" class="secondary" (click)="closeMemberForm()">Cancel</button
+          ><button class="primary" [disabled]="form.invalid || saving()">
+            {{ saving() ? 'Saving…' : 'Save member' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+@if (deleting(); as user) {
+  <app-confirm-dialog
+    [title]="'Remove ' + user.name + '?'"
+    message="This removes the member from this demo workspace."
+    confirmLabel="Remove member"
+    [busy]="saving()"
+    (cancelled)="deleting.set(null)"
+    (confirmed)="remove(user)"
+  />
+}

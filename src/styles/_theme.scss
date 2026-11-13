@@ -1,0 +1,22 @@
+:root {
+  --bg: #f7f9f8;
+  --surface: #fff;
+  --text: #202e2b;
+  --muted: #7b8c83;
+  --line: #e8eeeb;
+  --accent: #168c73;
+  --soft: #eaf6f1;
+  --sidebar: #fff;
+  color-scheme: light;
+}
+.dark {
+  --bg: #131c19;
+  --surface: #1b2722;
+  --text: #e1ece6;
+  --muted: #9bad9f;
+  --line: #304038;
+  --accent: #63cfad;
+  --soft: #253e33;
+  --sidebar: #18231e;
+  color-scheme: dark;
+}

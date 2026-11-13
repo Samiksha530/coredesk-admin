@@ -1,0 +1,161 @@
+<div class="page-heading">
+  <div>
+    <div class="eyebrow">WORKSPACE OVERVIEW</div>
+    <h1>A little clarity. A lot of possibility<span class="accent">.</span></h1>
+    <p class="muted">Here’s how your business is performing. Let’s make today count.</p>
+  </div>
+  <button class="secondary" (click)="exportReport()" [disabled]="loading() || !data() || !!error()">
+    ↓ Export report
+  </button>
+</div>
+<div class="section-toolbar">
+  <div class="tabs">
+    <button class="active">Overview</button><a routerLink="/users">Audience</a
+    ><a routerLink="/activity">Activity</a>
+  </div>
+  <select #reportingPeriod aria-label="Reporting period" (change)="load(reportingPeriod.value)">
+    <option value="30">Last 30 days</option>
+    <option value="90">Last 90 days</option>
+    <option value="365">This year</option>
+  </select>
+</div>
+@if (error()) {
+  <app-async-state state="error" [message]="error()" (retry)="load(period())" />
+}
+@if (loading() && data()) {
+  <app-async-state state="loading" message="Updating report…" />
+}
+@if (data(); as d) {
+  @if (teamError()) {
+    <p class="error" role="alert">
+      {{ teamError() }} <button (click)="loadTeam()">Retry team data</button>
+    </p>
+  }
+  <div class="kpi-grid">
+    <article class="card kpi">
+      <div class="kpi-label">Total revenue <span>↗</span></div>
+      <h2>{{ d.revenue | currency: 'USD' : 'symbol' : '1.0-0' }}</h2>
+      <div>
+        <span class="trend">↗ {{ d.growth }}%</span><span class="muted"> vs. previous period</span>
+      </div>
+      <svg viewBox="0 0 200 35" class="spark">
+        <path d="M0 30 L20 26 L40 28 L60 17 L80 21 L100 13 L120 16 L140 7 L160 12 L180 3 L200 6" />
+      </svg>
+    </article>
+    <article class="card kpi">
+      <div class="kpi-label">Total customers <span>♙</span></div>
+      <h2>{{ d.customers | number }}</h2>
+      <div><span class="trend">↗ 8.2%</span><span class="muted"> vs. previous period</span></div>
+      <svg viewBox="0 0 200 35" class="spark">
+        <path d="M0 31 L20 26 L40 28 L60 22 L80 25 L100 15 L120 18 L140 9 L160 11 L180 6 L200 3" />
+      </svg>
+    </article>
+    <article class="card kpi">
+      <div class="kpi-label">Conversion rate <span>◎</span></div>
+      <h2>{{ d.conversion }}<span class="unit">%</span></h2>
+      <div><span class="trend">↗ 1.4%</span><span class="muted"> vs. previous period</span></div>
+      <svg viewBox="0 0 200 35" class="spark">
+        <path d="M0 29 L25 24 L50 26 L75 12 L100 19 L125 7 L150 13 L175 3 L200 5" />
+      </svg>
+    </article>
+    <article class="card kpi dark-card">
+      <div class="kpi-label">Workspace members <span>◇</span></div>
+      <h2>{{ members() }}</h2>
+      <div><span class="green-dot">●</span> Across your organization</div>
+      <a routerLink="/users">Manage your team <span>→</span></a>
+    </article>
+  </div>
+  <div class="analytics-grid">
+    <section class="card revenue">
+      <div class="card-heading">
+        <div>
+          <h3>Revenue overview</h3>
+          <p class="muted">Your revenue performance over time</p>
+        </div>
+        <span class="legend"><i></i> Current period</span>
+      </div>
+      <app-revenue-chart [series]="d.series" [labels]="labels()" />
+      <div class="chart-summary">
+        <span><i class="green-dot">●</i> Trending up by {{ d.growth }}% this period</span
+        ><span class="muted">Seeded demo revenue data</span>
+      </div>
+    </section>
+    <section class="card audience">
+      <div class="card-heading">
+        <div>
+          <h3>Customer segments</h3>
+          <p class="muted">A closer look at your audience</p>
+        </div>
+        <span>◌</span>
+      </div>
+      <div class="donut">
+        <div>
+          <small class="muted">Total customers</small><strong>{{ d.customers | number }}</strong
+          ><span class="trend">↗ 8.2%</span>
+        </div>
+      </div>
+      <div class="segments">
+        @for (s of segments; track s.name) {
+          <div>
+            <span><i [style.background]="s.color"></i>{{ s.name }}</span
+            ><strong>{{ s.value }}%</strong>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+  <div class="bottom-grid">
+    <section class="card">
+      <div class="card-heading">
+        <div>
+          <h3>Your team at a glance</h3>
+          <p class="muted">The people making things happen</p>
+        </div>
+        <a routerLink="/users" class="text-link">View all users ↗</a>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>TEAM MEMBER</th>
+              <th>ROLE</th>
+              <th>STATUS</th>
+              <th>DEPARTMENT</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of team(); track u.id) {
+              <tr>
+                <td>
+                  <div class="person">
+                    <span class="avatar pastel">{{ u.name.slice(0, 1) }}</span>
+                    <div>
+                      <strong>{{ u.name }}</strong><small>{{ u.email }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ u.role }}</td>
+                <td>
+                  <app-status-badge [status]="u.status" />
+                </td>
+                <td>{{ u.department }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="card quick-start">
+      <span class="pill">WORKSPACE HEALTH</span>
+      <h3>Great work starts<br />with a great team.</h3>
+      <p class="muted">Keep your workspace organized with clear roles and the right access.</p>
+      <a class="primary" routerLink="/users">Manage members ↗</a>
+      <div class="mini-avatars">
+        <span class="avatar">JD</span><span class="avatar pastel">SK</span
+        ><span class="avatar">AM</span><span class="muted">Built to work together.</span>
+      </div>
+    </section>
+  </div>
+} @else if (!error()) {
+  <app-async-state state="loading" message="Loading your workspace…" />
+}

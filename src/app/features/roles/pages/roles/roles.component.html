@@ -1,0 +1,46 @@
+<div class="page-heading">
+  <div>
+    <span class="eyebrow">SECURE BY DESIGN</span>
+    <h1>Roles & permissions<span class="accent">.</span></h1>
+    <p class="muted">Clear boundaries. Confident collaboration.</p>
+  </div>
+  <span class="pill">ENFORCED BY THE API</span>
+</div>
+<div class="role-grid">
+  @for (r of roles; track r.name) {
+    <section class="card role-card">
+      <span class="role-symbol">{{ r.icon }}</span>
+      <h2>{{ r.name }}</h2>
+      <p class="muted">{{ r.description }}</p>
+      <span class="badge">System role</span>
+    </section>
+  }
+</div>
+<section class="card">
+  <div class="card-heading">
+    <h3>Permission matrix</h3>
+    <span class="muted">System roles are read-only</span>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>PERMISSION</th>
+          <th>ADMIN</th>
+          <th>MANAGER</th>
+          <th>VIEWER</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of permissions; track p.name) {
+          <tr>
+            <td>{{ p.name }}</td>
+            <td class="permission">✓</td>
+            <td class="permission">{{ p.manager ? '✓' : '—' }}</td>
+            <td class="permission">{{ p.viewer ? '✓' : '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

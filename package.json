@@ -1,15 +1,19 @@
 {
   "name": "coredesk-admin",
+  "description": "CoreDesk | Enterprise Management",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy.conf.json",
+    "start": "node scripts/dev.mjs",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "api": "node server/server.mjs",
-    "test:api": "node --test server/server.test.mjs",
-    "test:ci": "ng test --watch=false"
+    "test:api": "node --test server/server.test.mjs server/auth/token.test.mjs",
+    "test:ci": "ng test --watch=false",
+    "start:ui": "ng serve",
+    "format": "prettier --write \"src/**/*.{ts,html,css,scss}\" \"server/**/*.mjs\" \"scripts/*.mjs\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,css,scss}\" \"server/**/*.mjs\" \"scripts/*.mjs\""
   },
   "private": true,
   "packageManager": "npm@11.13.0",

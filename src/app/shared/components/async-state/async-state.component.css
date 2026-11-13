@@ -1,0 +1,34 @@
+:host {
+  display: block;
+}
+.state-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 24px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.state-error {
+  color: #b74e4e;
+}
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

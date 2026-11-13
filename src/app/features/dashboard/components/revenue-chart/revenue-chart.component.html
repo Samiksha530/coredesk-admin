@@ -1,0 +1,33 @@
+<div class="chart-wrap">
+  <div class="y-labels">
+    <span>$60k</span><span>$45k</span><span>$30k</span><span>$15k</span><span>$0</span>
+  </div>
+  <div class="chart">
+    <svg
+      viewBox="0 0 700 200"
+      preserveAspectRatio="none"
+      role="img"
+      aria-label="Revenue trend for selected period"
+    >
+      <defs>
+        <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#14b89a" stop-opacity=".22" />
+          <stop offset="100%" stop-color="#14b89a" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+      <path [attr.d]="area()" fill="url(#fill)" />
+      <path
+        [attr.d]="line()"
+        fill="none"
+        stroke="#13a88b"
+        stroke-width="3"
+        vector-effect="non-scaling-stroke"
+      />
+    </svg>
+    <div class="x-labels">
+      @for (label of labels(); track label) {
+        <span>{{ label }}</span>
+      }
+    </div>
+  </div>
+</div>

@@ -11,7 +11,10 @@
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
-          "style": "scss"
+          "style": "css",
+          "inlineTemplate": false,
+          "inlineStyle": false,
+          "skipTests": false
         }
       },
       "root": "",
@@ -28,9 +31,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": [
+              "src/styles.scss"
+            ]
           },
           "configurations": {
             "production": {
@@ -46,7 +56,12 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": false
+              }
             },
             "development": {
               "optimization": false,
@@ -66,7 +81,10 @@
               "buildTarget": "coredesk-admin:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test"
