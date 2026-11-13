@@ -2,58 +2,67 @@
 
 Manage teams, streamline operations, and track performance.
 
-Angular 22, TypeScript & REST API Integration. A portfolio project for freelance client demonstrations.
+An Angular 22 portfolio application with a working Node REST API. Built around team administration, business analytics and role-based access. Seeded analytics and fixed demo accounts make it safe to explore locally.
 
-## Run locally
+## Start
 
-Requires Node 24.15+ and npm. Open this folder in VS Code.
+Node 24.15+ and npm are required.
 
-Terminal 1:
 ```powershell
 npm ci
-npm run api
-```
-Terminal 2:
-```powershell
 npm start -- --open
 ```
-Visit http://localhost:4200. Accounts: `admin@coredesk.demo`, `manager@coredesk.demo`, `viewer@coredesk.demo`. Password: `Demo@123`.
 
-## Working features
+Open http://127.0.0.1:4200. The command starts both the API and Angular; keep the terminal running. Ctrl+C stops the application. For separate terminals, use npm run api and npm run start:ui. Stop older Angular/API terminals before restarting so two processes do not bind different localhost addresses.
 
-Responsive dashboard, period selection, SVG revenue chart, customer segmentation, CSV export, dark mode, user CRUD, search, filters, sorting, pagination, reactive validation, duplicate email detection, delete confirmation, activity history and local preferences.
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | admin@coredesk.demo | Demo@123 |
+| Manager | manager@coredesk.demo | Demo@123 |
+| Viewer | viewer@coredesk.demo | Demo@123 |
 
-Standalone components, lazy routes, signals, computed state, OnPush, typed HttpClient services, functional guards and scoped bearer interceptor. API enforces Admin/Manager/Viewer permissions.
+Credentials are also in src/assets/demo-login-credentials.txt. They are public demo accounts, not production secrets.
 
-## Structure
+## Features
 
-- src/app/core: typed models, API/auth service, guards, interceptor and tests
-- src/app/layout: responsive shell and navigation
-- src/app/features: login, dashboard, users, roles, activity and settings
-- server: mock REST API, integration tests, ignored local data
+- Analytics, reporting-period selection, reusable SVG revenue chart and CSV export.
+- User creation, editing and deletion with confirmation; search, filters, sorting and pagination.
+- Reactive forms, whitespace/length/email validation, duplicate-email responses and retryable error states.
+- Admin/Manager/Viewer authorization enforced by the REST API as well as navigation and action visibility.
+- Signed access JWTs, rotating HttpOnly refresh cookies, automatic refresh/retry and logout revocation.
+- Responsive sidebar with pinned sign out, mobile navigation, dark mode, preferences and audit events.
+
+## Screenshots
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+[User management](docs/screenshots/users.png) · [Mobile sidebar](docs/screenshots/mobile-sidebar.png)
+
+## Code organization
+
+Every component has separate .component.ts, .component.html, .component.css and .component.spec.ts files. Feature folders contain pages, typed models and HTTP services. Shared UI includes status badges, async states and confirmation dialogs. Core contains authentication, route guards, the interceptor, API configuration and theme management.
+
+See [architecture](docs/architecture.md) for the folder tree, boundaries and tradeoffs, and [client demo](docs/client-demo.md) for a walkthrough and release status.
 
 ## Checks
 
 ```powershell
-npm run build
+npm run format:check
 npm run test:ci
 npm run test:api
+npm run build
 ```
 
-## REST API
+Use npm run format to apply formatting. GitHub Actions is configured in .github/workflows/ci.yml; a workflow run is only verified after it has actually run on GitHub.
 
-POST /api/auth/login; GET /api/analytics?period=30|90|365; GET/POST /api/users; PUT/DELETE /api/users/:id; GET /api/audit.
+## REST endpoints
 
-The dev proxy forwards /api to 127.0.0.1:3001. Data persists in server/data/db.json. Sessions expire after eight hours and reset on API restart; sign out and sign in again after restarting. Business analytics are seeded demo values; preferences are browser-local.
+POST /api/auth/login, POST /api/auth/refresh, POST /api/auth/logout; GET /api/analytics?period=30|90|365; GET/POST /api/users; PUT/DELETE /api/users/:id; GET /api/audit.
 
-## Production boundary
+Angular proxies /api to 127.0.0.1:3001. The API stores development records in ignored server/data/db.json. API tests use an isolated temporary directory. Signing keys default to a random process-local key; set COREDESK_JWT_SECRET in the hosting environment for a stable key. Refresh cookies are Secure when NODE_ENV=production; use HTTPS in that environment.
 
-This portfolio demo uses fixed demo credentials and opaque in-memory sessions, not JWT/refresh tokens. For real clients, integrate an identity provider, secure HttpOnly cookies, refresh/revocation, rate limiting, HTTPS, transactional database, monitoring and durable audit storage. Demo account roles are fixed and are independent of editable directory members. Do not enter real personal or client data.
+## Demo boundaries
 
-## Presenting to clients
+Business analytics are seeded values. Preferences are browser-local. The directory does not provision login identities. API sessions reset on server restart. Fixed demo credentials, in-memory sessions and local JSON storage are for demonstration; production needs an identity provider, rate limiting, a transactional database, durable audit history and monitoring. Do not enter real personal or client data.
 
-Title: CoreDesk – Enterprise Management Platform.
-
-Show analytics, add a member, search/filter, edit status, view the audit entry, then sign in as Viewer to demonstrate access control. Explain lazy feature boundaries, signals, reactive validation, API authorization and production tradeoffs. Present this as a portfolio project; it does not establish years of professional experience.
-
-Suggested repository: coredesk-admin. GitHub repository and public deployment have not been created.
+Suggested repository: coredesk-admin. The local application and source are ready for review; GitHub publication and a public full-stack deployment remain separate release steps.
