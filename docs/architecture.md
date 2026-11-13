@@ -65,8 +65,12 @@ The API uses three fixed demo identities. Editable directory records do not prov
 - Seeded analytics demonstrate rendering and reporting, not a real billing integration.
 - Native dialog provides focus containment and Escape semantics for delete confirmation.
 - API tests run against a temporary directory and do not edit development records.
-- Session state is in memory on the API; restarting the server signs everyone out.
+- Local session state is in memory; restarting the development server signs everyone out. Hosted refresh sessions persist in PostgreSQL.
 
 ## Verification
 
 Unit and component tests cover form validation, filters/pagination, role visibility, HTTP failures, stale-request cancellation, guards, token scoping, refresh/retry, dialogs, preferences and CSV output. API tests cover permissions, CRUD conflicts, JWT tampering/expiry, refresh rotation and logout revocation. CI runs formatting, Angular tests, API tests and production build on Node 24.
+
+## Hosted persistence
+
+The Vercel entrypoint is api/index.mjs. server/storage selects a local JSON repository for development and a PostgreSQL repository when DATABASE_URL is configured. Hosted deployments require a database and stable JWT signing secret. Database-backed sessions and atomic refresh-hash updates support multiple function instances. See vercel-deployment.md for release details.

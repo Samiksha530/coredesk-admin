@@ -19,4 +19,6 @@ Implemented: role-based access, signed JWT and refresh, REST CRUD, search/sort/f
 
 Local demo: npm start; http://127.0.0.1:4200.
 
-Release work still required: verify the CI workflow after pushing to GitHub, create the GitHub repository, and configure a public full-stack host. A localhost URL is not a public live demo. A static-only host cannot run the Node API without a separate backend. Public deployment must use HTTPS, a persistent database, a stable signing secret and a production identity policy.
+Live demo: https://coredesk-admin.vercel.app. GitHub source: https://github.com/Samiksha530/coredesk-admin.
+
+Automatic deployments still require connecting that repository in the existing Vercel project Settings > Git. See vercel-deployment.md.

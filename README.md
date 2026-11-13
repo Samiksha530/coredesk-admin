@@ -4,6 +4,8 @@ Manage teams, streamline operations, and track performance.
 
 An Angular 22 portfolio application with a working Node REST API. Built around team administration, business analytics and role-based access. Seeded analytics and fixed demo accounts make it safe to explore locally.
 
+**Live demo:** https://coredesk-admin.vercel.app
+
 ## Start
 
 Node 24.15+ and npm are required.
@@ -59,10 +61,10 @@ Use npm run format to apply formatting. GitHub Actions is configured in .github/
 
 POST /api/auth/login, POST /api/auth/refresh, POST /api/auth/logout; GET /api/analytics?period=30|90|365; GET/POST /api/users; PUT/DELETE /api/users/:id; GET /api/audit.
 
-Angular proxies /api to 127.0.0.1:3001. The API stores development records in ignored server/data/db.json. API tests use an isolated temporary directory. Signing keys default to a random process-local key; set COREDESK_JWT_SECRET in the hosting environment for a stable key. Refresh cookies are Secure when NODE_ENV=production; use HTTPS in that environment.
+Angular proxies /api to 127.0.0.1:3001. The API stores local development records in ignored server/data/db.json; hosted users, audit events and refresh sessions use Neon PostgreSQL. API tests use an isolated temporary directory. Signing keys default to a random process-local key; set COREDESK_JWT_SECRET in the hosting environment for a stable key. Refresh cookies are Secure when NODE_ENV=production; use HTTPS in that environment.
 
 ## Demo boundaries
 
-Business analytics are seeded values. Preferences are browser-local. The directory does not provision login identities. API sessions reset on server restart. Fixed demo credentials, in-memory sessions and local JSON storage are for demonstration; production needs an identity provider, rate limiting, a transactional database, durable audit history and monitoring. Do not enter real personal or client data.
+Business analytics are seeded values. Preferences are browser-local. The directory does not provision login identities. Local API sessions reset on server restart. Hosted sessions persist in PostgreSQL. Fixed demo credentials, in-memory sessions and local JSON storage are for demonstration; production needs an identity provider, rate limiting, a transactional database, durable audit history and monitoring. Do not enter real personal or client data.
 
-Suggested repository: coredesk-admin. The local application and source are ready for review; GitHub publication and a public full-stack deployment remain separate release steps.
+Suggested repository: coredesk-admin. The full-stack application is live on Vercel. See [deployment notes](docs/vercel-deployment.md) for environment configuration and Git-based automatic deployments.

@@ -1,4 +1,9 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+if (
+  process.env.VERCEL &&
+  (!process.env.COREDESK_JWT_SECRET || process.env.COREDESK_JWT_SECRET.length < 32)
+)
+  throw new Error('COREDESK_JWT_SECRET must be set to a random secret of at least 32 characters.');
 const secret = process.env.COREDESK_JWT_SECRET || randomBytes(32).toString('hex');
 const issuer = 'coredesk-api';
 const audience = 'coredesk-web';

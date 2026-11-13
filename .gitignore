@@ -46,3 +46,9 @@ Thumbs.db
 /server/data/
 
 /work/
+
+# Deployment state and secrets
+.vercel/
+.env
+.env.*
+!.env.example

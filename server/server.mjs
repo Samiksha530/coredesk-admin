@@ -1,78 +1,9 @@
 import { login, refresh, logout, authenticate } from './auth/session.mjs';
 import http from 'node:http';
 import { randomUUID } from 'node:crypto';
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
-const dir = process.env.COREDESK_DATA_DIR
-  ? pathToFileURL(resolve(process.env.COREDESK_DATA_DIR) + '/')
-  : new URL('./data/', import.meta.url);
-await mkdir(dir, { recursive: true });
-const file = new URL('db.json', dir);
-const names = [
-  'Alex Morgan',
-  'Sarah Kim',
-  'James Wilson',
-  'Emma Davis',
-  'Oliver Chen',
-  'Priya Sharma',
-  'Noah Williams',
-  'Mia Johnson',
-  'Liam Patel',
-  'Sophia Brown',
-  'Ethan Miller',
-  'Ava Garcia',
-  'Lucas Martin',
-  'Isabella Lee',
-  'Mason Clark',
-  'Amelia Lewis',
-  'Logan Walker',
-  'Harper Hall',
-  'Elijah Young',
-  'Charlotte Allen',
-  'Henry King',
-  'Evelyn Wright',
-  'Daniel Scott',
-  'Grace Green',
-];
-const seed = {
-  users: names.map((name, i) => ({
-    id: String(i + 1),
-    name,
-    email:
-      i === 0 ? 'admin@coredesk.demo' : name.toLowerCase().replace(' ', '.') + '@coredesk.demo',
-    role: i === 0 ? 'Admin' : i % 5 === 0 ? 'Manager' : 'Viewer',
-    status: i % 7 === 5 ? 'Invited' : i % 11 === 8 ? 'Suspended' : 'Active',
-    department: ['Engineering', 'Design', 'Marketing', 'Operations'][i % 4],
-    joined: `2026-${String(3 + (i % 8)).padStart(2, '0')}-${String(1 + (i % 27)).padStart(2, '0')}`,
-  })),
-  audit: [
-    {
-      id: randomUUID(),
-      action: 'Workspace created',
-      actor: 'System',
-      date: new Date().toISOString(),
-    },
-  ],
-};
-let db;
-try {
-  db = JSON.parse(await readFile(file, 'utf8'));
-} catch {
-  db = seed;
-  await writeFile(file, JSON.stringify(db, null, 2));
-}
-let writes = Promise.resolve();
-const persist = () => {
-  const snapshot = JSON.stringify(db, null, 2);
-  writes = writes.then(() => writeFile(file, snapshot));
-  return writes;
-};
-const audit = (action, actor) => {
-  db.audit.unshift({ id: randomUUID(), action, actor, date: new Date().toISOString() });
-  db.audit = db.audit.slice(0, 100);
-};
-export const server = http.createServer(async (req, res) => {
+import { fileURLToPath } from 'node:url';
+import { getRepository } from './storage/repository.mjs';
+export async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'no-store');
   const send = (status, data) => {
@@ -81,8 +12,13 @@ export const server = http.createServer(async (req, res) => {
   };
   try {
     const url = new URL(req.url, 'http://localhost');
+    const store = await getRepository();
+    const audit = (action, actor) =>
+      store.appendAudit({ id: randomUUID(), action, actor, date: new Date().toISOString() });
     let body = {};
-    if (['POST', 'PUT'].includes(req.method)) {
+    if (req.body !== undefined) {
+      body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    } else if (['POST', 'PUT'].includes(req.method)) {
       let raw = '';
       for await (const chunk of req) {
         raw += chunk;
@@ -99,27 +35,26 @@ export const server = http.createServer(async (req, res) => {
       }
     }
     if (url.pathname === '/api/auth/login' && req.method === 'POST') {
-      const session = login(body, res);
+      const session = await login(body, res);
       if (!session) {
         send(401, { message: 'Invalid demo email or password.' });
         return;
       }
-      audit('Signed in to workspace', session.email);
-      await persist();
+      await audit('Signed in to workspace', session.email);
       send(200, session);
       return;
     }
     if (url.pathname === '/api/auth/refresh' && req.method === 'POST') {
-      const session = refresh(req, res);
+      const session = await refresh(req, res);
       send(session ? 200 : 401, session || { message: 'Session expired. Please sign in again.' });
       return;
     }
     if (url.pathname === '/api/auth/logout' && req.method === 'POST') {
-      logout(req, res);
+      await logout(req, res);
       send(200, { ok: true });
       return;
     }
-    const session = authenticate(req);
+    const session = await authenticate(req);
     if (!session) {
       send(401, { message: 'Session expired. Please sign in again.' });
       return;
@@ -143,11 +78,11 @@ export const server = http.createServer(async (req, res) => {
       return;
     }
     if (url.pathname === '/api/audit' && req.method === 'GET') {
-      send(200, db.audit);
+      send(200, await store.listAudit());
       return;
     }
     if (url.pathname === '/api/users' && req.method === 'GET') {
-      send(200, db.users);
+      send(200, await store.listUsers());
       return;
     }
     if (
@@ -159,7 +94,7 @@ export const server = http.createServer(async (req, res) => {
         return;
       }
       const id = url.pathname.split('/')[3];
-      const existing = db.users.find((u) => u.id === id);
+      const existing = await store.getUser(id);
       if (req.method !== 'POST' && !existing) {
         send(404, { message: 'Member not found.' });
         return;
@@ -176,9 +111,8 @@ export const server = http.createServer(async (req, res) => {
           send(409, { message: 'You cannot remove your own account.' });
           return;
         }
-        db.users = db.users.filter((u) => u.id !== id);
-        audit(`Removed member: ${existing.name}`, session.email);
-        await persist();
+        await store.deleteUser(id);
+        await audit(`Removed member: ${existing.name}`, session.email);
         send(200, { ok: true });
         return;
       }
@@ -198,10 +132,6 @@ export const server = http.createServer(async (req, res) => {
         send(400, { message: 'Provide valid name, email, department, role and status.' });
         return;
       }
-      if (db.users.some((u) => u.email.toLowerCase() === email.toLowerCase() && u.id !== id)) {
-        send(409, { message: 'A member with this email already exists.' });
-        return;
-      }
       const user = {
         id: existing?.id || randomUUID(),
         name: name.trim(),
@@ -211,20 +141,24 @@ export const server = http.createServer(async (req, res) => {
         department: department.trim(),
         joined: existing?.joined || new Date().toISOString().slice(0, 10),
       };
-      if (existing) db.users = db.users.map((u) => (u.id === id ? user : u));
-      else db.users.push(user);
-      audit(`${existing ? 'Updated' : 'Added'} member: ${user.name}`, session.email);
-      await persist();
+      await store.saveUser(user);
+      await audit(`${existing ? 'Updated' : 'Added'} member: ${user.name}`, session.email);
       send(existing ? 200 : 201, user);
       return;
     }
     send(404, { message: 'Endpoint not found.' });
   } catch (err) {
-    console.error(err);
-    if (!res.headersSent) send(500, { message: 'Unexpected server error.' });
+    if (err.code === '23505') {
+      send(409, { message: 'A member with this email already exists.' });
+      return;
+    }
+    console.error('API request failed:', err.code || err.message);
+    if (!res.headersSent)
+      send(503, { message: 'API storage is unavailable. Please try again later.' });
     else res.end();
   }
-});
+}
+export const server = http.createServer(handler);
 if (process.argv[1] === fileURLToPath(import.meta.url))
   server.listen(3001, '127.0.0.1', () =>
     console.log('CoreDesk mock REST API: http://127.0.0.1:3001'),
